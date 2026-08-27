@@ -1,0 +1,17 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "claude-caffeinate",
+  "description": "Keep your Mac awake while Claude Code works — automatically, or on demand with slash commands.",
+  "owner": {
+    "name": "Francesco Giovannini",
+    "url": "https://github.com/fgiova"
+  },
+  "plugins": [
+    {
+      "name": "claude-caffeinate",
+      "description": "Hook-driven keep-awake with manual /on, /off, /auto and /status control.",
+      "source": "./",
+      "category": "productivity"
+    }
+  ]
+}
