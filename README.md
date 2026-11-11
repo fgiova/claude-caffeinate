@@ -27,6 +27,7 @@ is scoped to the session you run it in.
 | `/claude-caffeinate:off` | release this session's locks and turn its hook automation back off |
 | `/claude-caffeinate:hooks-on` | hand this session to the hooks: awake while Claude works, asleep when it stops |
 | `/claude-caffeinate:status` | this session's state, plus how many other sessions hold a lock |
+| `/claude-caffeinate:off-all` | release every session's locks; hook automation stays on where enabled, so those sessions wake again on their next prompt |
 
 The opt-in is per session, so a new session always starts inert.
 

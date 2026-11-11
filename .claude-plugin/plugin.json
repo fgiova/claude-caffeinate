@@ -1,7 +1,7 @@
 {
   "name": "claude-caffeinate",
-  "description": "Keeps your Mac awake while Claude Code works \u2014 off until you ask for it, per session, via /on, /off, /hooks-on and /status.",
-  "version": "1.3.1",
+  "description": "Keeps your Mac awake while Claude Code works \u2014 off until you ask for it, per session, via /on, /off, /off-all, /hooks-on and /status.",
+  "version": "1.4.0",
   "author": {
     "name": "Francesco Giovannini",
     "url": "https://github.com/fgiova"

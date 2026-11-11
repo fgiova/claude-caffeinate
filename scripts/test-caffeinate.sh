@@ -130,5 +130,21 @@ echo 999999 > "$(pf "$A" hook)"
 env -u CLAUDE_PID CLAUDE_CODE_SESSION_ID="$A" bash "$cc" status >/dev/null
 [ -e "$(pf "$A" hook)" ]; check "status prunes a dead pidfile" "$?" "1"
 
+# --- off-all: in a private TMPDIR, so real sessions' locks are never touched ---
+iso=$(mktemp -d)
+irun() { env -u CLAUDE_PID TMPDIR="$iso" CLAUDE_CODE_SESSION_ID="$1" bash "$cc" "$2" >/dev/null; }
+ihook() { env -u CLAUDE_PID TMPDIR="$iso" bash "$cc" "$1" <<<"$2" >/dev/null; }
+irun "$A" hooks-on; ihook _prompt "$prompt_A"; irun "$B" on
+ipids=$(cut -d' ' -f1 "$iso"/claude-caffeinate-*.pid)
+irun "$A" off-all
+rc=0; for p in $ipids; do kill -0 "$p" 2>/dev/null && rc=1; done
+check "off-all kills every session's caffeinate" "$rc" "0"
+ls "$iso"/claude-caffeinate-*.pid >/dev/null 2>&1; check "off-all leaves no pidfile behind" "$?" "1"
+[ -e "$iso/claude-caffeinate-$A.hooks-enabled" ]; check "off-all keeps the hook opt-in" "$?" "0"
+ihook _prompt "$prompt_A"
+alive "$iso/claude-caffeinate-$A.hook.pid"; check "hooks still work after off-all" "$?" "0"
+irun "$A" off
+rm -rf "$iso"
+
 [ "$fails" -eq 0 ] && echo "all passed" || echo "$fails failed"
 exit "$fails"

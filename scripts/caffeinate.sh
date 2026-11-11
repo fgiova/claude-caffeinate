@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
 # claude-caffeinate — keep the Mac awake, by hand or (opt-in) driven by hooks.
 #
-# Usage: caffeinate.sh <on|off|hooks-on|status|_prompt|_stop|_end>
+# Usage: caffeinate.sh <on|off|off-all|hooks-on|status|_prompt|_stop|_end>
 #   on        manual lock for THIS session: awake until `off`, hooks can't release it
 #   off       release this session's locks and turn its hook automation back off
+#   off-all   release EVERY session's locks; hook opt-ins are left as they are
 #   hooks-on  opt this session into hook automation (awake while Claude works)
 #   status    print this session's state, plus a read-only count of other sessions
 #   _prompt   UserPromptSubmit hook   (reads hook JSON on stdin)
@@ -123,7 +124,16 @@ case "$cmd" in
     stop "$hook"
     n=$(others)
     echo "Released — this session no longer keeps the Mac awake, and its hook automation is off."
-    [ "$n" = "0" ] || echo "Note: $n other Claude session(s) still hold a lock — untouched, by design."
+    [ "$n" = "0" ] || echo "Note: $n other Claude session(s) still hold a lock — untouched, by design. /claude-caffeinate:off-all releases them too."
+    ;;
+  off-all)
+    n=0
+    for pf in "$prefix"*.pid; do
+      [ -e "$pf" ] || continue
+      alive "$pf" && n=$((n+1))
+      stop "$pf"
+    done
+    echo "Released $n lock(s) across all Claude sessions. Hook automation is untouched: sessions with hooks-on wake again on their next prompt."
     ;;
   hooks-on)
     owner_pid > "$enabled"
@@ -160,7 +170,7 @@ case "$cmd" in
     rm -f "$enabled"
     ;;
   *)
-    echo "usage: $(basename "$0") <on|off|hooks-on|status|_prompt|_stop|_end>" >&2
+    echo "usage: $(basename "$0") <on|off|off-all|hooks-on|status|_prompt|_stop|_end>" >&2
     exit 2
     ;;
 esac
